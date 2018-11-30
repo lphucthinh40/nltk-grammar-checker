@@ -1,0 +1,17 @@
+Index,Regular Expression,Message,Example
+A00,(((a|an)/DT)|(one/CD))(\s\w+/(JJ))*\s\w+/(NNS),"singular noun expected after 'a', 'an' or 'one'","a bags, one people"
+A01,many/JJ(\s\w+/(JJ))*\s\w+/NN(?!S),plural noun expected after 'many',"many person, many friend"
+B02,\w*(?<!they)/(NN|NNP|PRP)\s(\w+/RB\s)?\w+/VB(?!Z),subject verb agreement - singular subject takes singular verb,"he never play chess, the doctor care about his patient"
+A03,\w+/(NNS|NNPS|PRP)\s(\w+/RB\s)?\w+/VBZ,subject verb agreement - plural subject takes plural verb,they wants to go home
+R04,\w*(?<!lot)/NN\sof/IN\s\w+/NN\w?\s\w+/VBP,subject verb agreement - sigular subject takes singular verb,a bag of candies are given to the smartest kid
+R05,\w+/NNP\sof/IN\s\w+/NN\w?\s\w+/VBZ,subject verb agreement - plural subject takes plural verb,bags of candies is given to the smartest kid
+R06,\w+/(NN\w?|PRP)\sand/CC\s\w+/(NN\w?|PRP)\s\w+/VBZ,subject verb agreement - compound subject takes plural verb,John and Lisa is my best friends
+R07,\w+/(PRP|NNP?)\sn?or/CC\s\w+/NN\s\w+/VBP,"in 'or', 'either..or', 'neither..nor' sentence, verb agrees with noun closest to it",neither I nor him know the answer
+R08,\w+/(PRP|NNP?)\sn?or/CC\s\w+/NNP\s\w+/VBZ,"in 'or', 'either..or', 'neither..nor' sentence, verb agrees with noun closest to it",neither he or I knows the answer
+R09,t?here/(RB|EX)\s\w+/VBZ\s(\w+/(?!NNP)\w+\s)*\w+/NNP,subject verb agreement - plural subject takes plural verb,there is many people in here
+R10,t?here/(RB|EX)\s\w+/VBP\s(\w+/(?!NNP)\w+\s)*\w+/NN(?!P),subject verb agreement - singular subject takes singular verb,here are your drink
+R11,\w+/MD\s\w+(((s|ed)/VB\w*)|/VB\w),modal verb should be followed by a base-form verb,he will plays soccer with us 
+R12,when/WRB\s\w+/\w+\s(will|shall)/MD, 'when' clause should not be in future tense,"when I will have enough money, I will buy a nice car"
+R13,(before|after)/\w+\s\w+/VB(?!G),expecting gerund (verb-ing) after preposition,"before go to class, I often review the previous lecture"
+R14,\w+/(NN\w?|PRP)\s(have|has)/\w+\s\w+/VB(?!N),past participle require verb in participle form,I have never saw that before
+R15,\w+/(NN\w?|PRP)\s(am|is|are)/\w+\s\w+/VB(?!G),expected verb-ing or verb-participle,pets are treat very well in this country
