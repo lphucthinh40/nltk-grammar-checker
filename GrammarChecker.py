@@ -66,17 +66,24 @@ class GrammarChecker:
                 pattern = re.compile(rule[1][0]) # compile a regular expression
                 result = pattern.search(sent)
                 if result is not None:
+                    error_string_wtag = result.group()
+                    extractor = re.compile('/\w+')
+                    error_string = extractor.sub('', error_string_wtag)
                     temp_pos_list.append((result.start(), result.end()))
                     error_count += 1
-                    temp_error_list.append((result.group(), rule[0], rule[1][1]))
+                    temp_error_list.append((error_string, rule[0], rule[1][1]))
             # check Rules B: Basic Grammar Structure
             for rule in self.rules_B.items():
                 pattern = re.compile(rule[1][0]) # compile a regular expression
-                result = pattern.search(sent)
-                if result is not None:
-                    if overlap_test((result.start(), result.end()), temp_pos_list) == 0:
-                        error_count += 1
-                        temp_error_list.append((result.group(), rule[0], rule[1][1]))
+                it = re.finditer(pattern, sent)
+                for result in it:
+                    if result is not None:
+                        if overlap_test((result.start(), result.end()), temp_pos_list) == 0:
+                            error_string_wtag = result.group()
+                            extractor = re.compile('/\w+')
+                            error_string = extractor.sub('', error_string_wtag)
+                            error_count += 1
+                            temp_error_list.append((error_string, rule[0], rule[1][1]))
             error_list.append(temp_error_list if len(temp_error_list) != 0 else None)
         if error_count == 0:
             return None
