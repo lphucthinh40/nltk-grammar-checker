@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import GrammarChecker
 
+
 def get_input():
     global input_text
     sents = []
@@ -9,7 +10,9 @@ def get_input():
     print(line_count)
     for i in range(line_count):
          sents.append(input_text.get('{}.0'.format(i+1),'{}.end'.format(i+1)))
+    print(sents)
     return sents
+
 
 def show_message(tag):
     global message_text, input_text, myChecker
@@ -24,6 +27,7 @@ def show_message(tag):
     message_text.insert('end', message)
     message_text.configure(state="disabled")
 
+
 def clear():
     global input_text, total, message_text
     message_text.configure(state='normal')
@@ -37,23 +41,32 @@ def clear():
 
 def run():
     global input_text, total, error_lists, myChecker
+
+    # cleaning old results
+    for tag in input_text.tag_names():
+        input_text.tag_delete(tag)
+    message_text.configure(state='normal')
+    message_text.delete(1.0,'end')
+    message_text.configure(state='disabled')
+
     sents = get_input()
     error_lists, error_count = myChecker.find_errors(sents)
     total.set('Error(s) found: {}'.format(error_count))
     sent_index = 0
-    for error_list in error_lists:
-        if error_list is not None:
-            error_index = 0
-            for error in error_list:
-                tag_name = '{0}.{1}'.format(sent_index, error_index)
-                start = sents[sent_index].find(error[0])
-                end = '{0}.{1}'.format(sent_index + 1, start + len(error[0]))
-                start = '{0}.{1}'.format(sent_index + 1, start)
-                input_text.tag_add(tag_name, start, end)
-                input_text.tag_config(tag_name, background="yellow")
-                input_text.tag_bind(tag_name, "<Button-1>", lambda event, obj=tag_name: show_message(obj))
-                error_index += 1
-        sent_index += 1
+    if error_lists is not None:
+        for error_list in error_lists:
+            if error_list is not None:
+                error_index = 0
+                for error in error_list:
+                    tag_name = '{0}.{1}'.format(sent_index, error_index)
+                    start = sents[sent_index].find(error[0])
+                    end = '{0}.{1}'.format(sent_index + 1, start + len(error[0]))
+                    start = '{0}.{1}'.format(sent_index + 1, start)
+                    input_text.tag_add(tag_name, start, end)
+                    input_text.tag_config(tag_name, background="yellow")
+                    input_text.tag_bind(tag_name, "<Button-1>", lambda event, obj=tag_name: show_message(obj))
+                    error_index += 1
+            sent_index += 1
 
 
 error_lists = None
