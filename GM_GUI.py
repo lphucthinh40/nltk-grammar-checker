@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 import GrammarChecker
-
+import speech_recognition as sr
 
 def get_input():
     global input_text
@@ -10,9 +10,7 @@ def get_input():
     print(line_count)
     for i in range(line_count):
          sents.append(input_text.get('{}.0'.format(i+1),'{}.end'.format(i+1)))
-    print(sents)
     return sents
-
 
 def show_message(tag):
     global message_text, input_text, myChecker
@@ -27,7 +25,6 @@ def show_message(tag):
     message_text.insert('end', message)
     message_text.configure(state="disabled")
 
-
 def clear():
     global input_text, total, message_text
     message_text.configure(state='normal')
@@ -41,32 +38,46 @@ def clear():
 
 def run():
     global input_text, total, error_lists, myChecker
-
-    # cleaning old results
-    for tag in input_text.tag_names():
-        input_text.tag_delete(tag)
-    message_text.configure(state='normal')
-    message_text.delete(1.0,'end')
-    message_text.configure(state='disabled')
-
     sents = get_input()
     error_lists, error_count = myChecker.find_errors(sents)
     total.set('Error(s) found: {}'.format(error_count))
     sent_index = 0
-    if error_lists is not None:
-        for error_list in error_lists:
-            if error_list is not None:
-                error_index = 0
-                for error in error_list:
-                    tag_name = '{0}.{1}'.format(sent_index, error_index)
-                    start = sents[sent_index].find(error[0])
-                    end = '{0}.{1}'.format(sent_index + 1, start + len(error[0]))
-                    start = '{0}.{1}'.format(sent_index + 1, start)
-                    input_text.tag_add(tag_name, start, end)
-                    input_text.tag_config(tag_name, background="yellow")
-                    input_text.tag_bind(tag_name, "<Button-1>", lambda event, obj=tag_name: show_message(obj))
-                    error_index += 1
-            sent_index += 1
+    for error_list in error_lists:
+        if error_list is not None:
+            error_index = 0
+            for error in error_list:
+                tag_name = '{0}.{1}'.format(sent_index, error_index)
+                start = sents[sent_index].find(error[0])
+                end = '{0}.{1}'.format(sent_index + 1, start + len(error[0]))
+                start = '{0}.{1}'.format(sent_index + 1, start)
+                input_text.tag_add(tag_name, start, end)
+                input_text.tag_config(tag_name, background="yellow")
+                input_text.tag_bind(tag_name, "<Button-1>", lambda event, obj=tag_name: show_message(obj))
+                error_index += 1
+        sent_index += 1
+
+def voice():
+    global input_text
+    r = sr.Recognizer()
+    r.pause_threshold = 0.7
+    r.energy_threshold = 400
+
+    with sr.Microphone() as source:
+        try:
+            audio = r.listen(source, timeout=5)
+
+            message = str(r.recognize_google(audio))
+            clear()
+            input_text.insert('end', message)
+
+        except sr.UnknownValueError:
+            print("Google Speech Recognition could not understand audio")
+
+        except sr.RequestError as e:
+            print("Could not request results from Google Speech Recognition service; {0}".format(e))
+
+        else:
+            pass
 
 
 error_lists = None
@@ -92,6 +103,7 @@ frame1.columnconfigure(2, weight=0)
 frame1.rowconfigure(0, weight=1)
 frame1.rowconfigure(1, weight=0)
 frame1.rowconfigure(2, weight=1)
+frame1.rowconfigure(3, weight=1)
 
 error_message = tk.StringVar()
 total = tk.StringVar()
@@ -104,21 +116,24 @@ message_text = tk.Text(frame1, height=5, width=40, bg='lemon chiffon', relief='s
 message_label = tk.Label(frame1, text="Message", relief='ridge', font=("Helvetica", 12))
 count_label = tk.Label(frame1, textvariable=total, font=("Helvetica", 10))
 buttons_frame = tk.Frame(frame1)
+
 button1 = tk.Button(buttons_frame, text='Run', font=("Helvetica", 12), height=3, bd=1, command=run)
 button2 = tk.Button(buttons_frame, text='Clear', font=("Helvetica", 12), height=2, bd=1, command=clear)
+button3 = tk.Button(buttons_frame, text='Voice', font=("Helvetic", 12), height=4, bd=1, command=voice)
 button1.pack(fill = 'x', padx=2, side='bottom')
 button2.pack(fill = 'x', padx=2, side='bottom')
+button3.pack(fill = 'x', padx=2, side='bottom')
 scroll_bar.config(command=input_text.yview)
 input_text.config(yscrollcommand=scroll_bar.set)
-starter = "Enter text here"
+starter = "Enter text here or use voice"
 input_text.insert('end', starter)
 # Grid setup
 scroll_bar.grid(row=0, column=2, sticky='nsew')
 input_text.grid(row=0, column=0, sticky='nsew', columnspan=2)
 message_label.grid(row=1, column=0, sticky='nsew')
 count_label.grid(row=1, column=1, sticky='nsew', columnspan=2)
-message_text.grid(row=2, column=0, sticky='nsew')
-buttons_frame.grid(row=2, column=1, sticky='nsew', columnspan=2)
+message_text.grid(row=3, column=0, sticky='nsew')
+buttons_frame.grid(row=3, column=1, sticky='nsew', columnspan=2)
 # _________________________________________________________
 
 # _________________________________________________________
